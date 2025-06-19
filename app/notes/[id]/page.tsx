@@ -7,10 +7,10 @@ import { fetchById } from "../../../lib/api";
 import { NoteDetailsClient } from "./NoteDetailsClient";
 
 type PageProps = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
-const Page = async ({ params }: PageProps) => {
+export default async function Page({ params }: PageProps) {
   const { id } = await params;
   const numId = Number(id);
   const queryClient = new QueryClient();
@@ -25,6 +25,4 @@ const Page = async ({ params }: PageProps) => {
       <NoteDetailsClient />
     </HydrationBoundary>
   );
-};
-
-export default Page;
+}
