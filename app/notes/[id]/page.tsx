@@ -9,7 +9,7 @@ type Props = {
   params: { id: string };
 };
 const NoteDetails = async ({ params }: Props) => {
-  const id = Number(params.id);
+  const { id } = params;
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery({
