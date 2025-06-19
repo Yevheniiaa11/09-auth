@@ -7,17 +7,17 @@ import { fetchById } from "../../../lib/api";
 import { NoteDetailsClient } from "./NoteDetailsClient";
 
 type PageProps = {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 };
 
-export default async function Page({ params }: PageProps) {
+const Page = async ({ params }: PageProps) => {
   const { id } = await params;
   const numId = Number(id);
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery({
     queryKey: ["note", numId],
-    queryFn: () => fetchById(id),
+    queryFn: () => fetchById(numId),
   });
 
   return (
@@ -25,4 +25,6 @@ export default async function Page({ params }: PageProps) {
       <NoteDetailsClient />
     </HydrationBoundary>
   );
-}
+};
+
+export default Page;
