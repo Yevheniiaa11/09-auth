@@ -12,8 +12,3 @@ export interface NewNoteData {
   content: string;
   tag: string;
 }
-
-export interface NoteResponse {
-  notes: Note[];
-  totalPages: number;
-}

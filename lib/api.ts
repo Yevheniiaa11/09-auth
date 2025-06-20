@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { NewNoteData, Note, NoteResponse } from "../types/note";
+import type { NewNoteData, Note } from "../types/note";
 
 axios.defaults.baseURL = "https://notehub-public.goit.study/api";
 axios.defaults.headers.common.Authorization = `Bearer ${
@@ -10,7 +10,7 @@ export const fetchNotes = async (
   searchQuery: string,
   page: number = 1,
   perPage: number = 12
-): Promise<NoteResponse> => {
+): Promise<{ notes: Note[]; totalPages: number }> => {
   const params: Record<string, string | number> = {
     page,
     perPage,
@@ -20,7 +20,9 @@ export const fetchNotes = async (
     params.search = searchQuery.trim();
   }
 
-  const res = await axios.get<NoteResponse>("/notes", { params });
+  const res = await axios.get<{ notes: Note[]; totalPages: number }>("/notes", {
+    params,
+  });
   return res.data;
 };
 

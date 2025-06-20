@@ -4,7 +4,7 @@ import { NoteList } from "../../components/NoteList/NoteList";
 import css from "./NotesPage.module.css";
 import { useQuery } from "@tanstack/react-query";
 import { fetchNotes } from "../../lib/api";
-import Pagination from "../../components/Pagination/Paination";
+import Pagination from "../../components/Pagination/Pagination";
 import SearchBox from "../../components/SearchBox/SearchBox";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -12,15 +12,20 @@ import NoteModal from "../../components/NoteModal/NoteModal";
 import { useDebounce } from "use-debounce";
 import Loader from "../../components/Loader/Loader";
 import ErrorMessage from "../../components/ErrorMessage/ErrorMessage";
+import { Note } from "../../types/note";
 
-export default function App() {
+type NotesClientProps = {
+  initialNotes: Note[];
+  initialTotalPages: number;
+};
+export default function NotesClient({
+  initialNotes,
+  initialTotalPages,
+}: NotesClientProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [debouncedSearch] = useDebounce(searchQuery, 500);
-
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
 
   const trimmedSearch = debouncedSearch.trim();
 
@@ -32,11 +37,17 @@ export default function App() {
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
   const { data, isLoading, error, isFetching } = useQuery({
     queryKey: ["notes", trimmedSearch, currentPage],
     queryFn: () => fetchNotes(trimmedSearch, currentPage),
-    placeholderData: (prevData) => prevData,
+    initialData:
+      currentPage === 1 && trimmedSearch === ""
+        ? { notes: initialNotes, totalPages: initialTotalPages }
+        : undefined,
+    placeholderData: (prev) => prev,
   });
 
   return (
