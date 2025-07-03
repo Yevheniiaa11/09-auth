@@ -1,16 +1,43 @@
+"use client";
+import { fetchNoteById } from "../../lib/api";
 import { Note } from "../../types/note";
+import ErrorMessage from "../ErrorMessage/ErrorMessage";
+import Loader from "../Loader/Loader";
 import css from "./NotePreview.module.css";
-import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 
 interface NotePreviewProps {
-  note?: Note;
+  noteId: number;
+  onClose?: () => void;
 }
 
-export default function NotePreview({ note }: NotePreviewProps) {
-  const router = useRouter();
-  function handleClose() {
-    router.back();
+export default function NotePreview({ noteId, onClose }: NotePreviewProps) {
+  const {
+    data: note,
+    isLoading,
+    error,
+  } = useQuery<Note, Error>({
+    queryKey: ["note", noteId],
+    queryFn: () => fetchNoteById(noteId),
+    enabled: !!noteId,
+  });
+
+  const handleClose = () => {
+    if (onClose) {
+      onClose();
+    }
+  };
+
+  if (isLoading) {
+    return <Loader />;
   }
+  if (error) {
+    return <ErrorMessage />;
+  }
+  if (!note) {
+    return <p>Note not found.</p>;
+  }
+
   return (
     <div className={css.container}>
       {note && (
