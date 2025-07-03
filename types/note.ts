@@ -12,3 +12,13 @@ export interface NewNoteData {
   content: string;
   tag: string;
 }
+
+export interface NoteCategory {
+  id: number;
+  title: string;
+}
+
+export interface NoteListResponse {
+  notes: Note[];
+  totalPages: number;
+}

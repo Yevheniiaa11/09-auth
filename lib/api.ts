@@ -1,5 +1,11 @@
 import axios from "axios";
-import type { NewNoteData, Note } from "../types/note";
+import type {
+  NewNoteData,
+  Note,
+  NoteCategory,
+  NoteListResponse,
+} from "../types/note";
+import { categories } from "./categories";
 
 axios.defaults.baseURL = "https://notehub-public.goit.study/api";
 axios.defaults.headers.common.Authorization = `Bearer ${
@@ -7,23 +13,30 @@ axios.defaults.headers.common.Authorization = `Bearer ${
 }`;
 
 export const fetchNotes = async (
-  searchQuery: string,
+  tag: string = "",
   page: number = 1,
   perPage: number = 12
 ): Promise<{ notes: Note[]; totalPages: number }> => {
-  const params: Record<string, string | number> = {
-    page,
-    perPage,
-  };
+  try {
+    const params: Record<string, string | number> = {
+      page,
+      perPage,
+    };
+    if (tag && tag.toLowerCase() !== "all") {
+      params.tag = tag.trim();
+    }
 
-  if (searchQuery.trim()) {
-    params.search = searchQuery.trim();
+    const res = await axios.get<{ notes: Note[]; totalPages: number }>(
+      "/notes",
+      {
+        params,
+      }
+    );
+    return res.data;
+  } catch (error: unknown) {
+    console.error("fetchNotes error:", error);
+    return { notes: [], totalPages: 1 };
   }
-
-  const res = await axios.get<{ notes: Note[]; totalPages: number }>("/notes", {
-    params,
-  });
-  return res.data;
 };
 
 export const createNote = async (noteData: NewNoteData): Promise<Note> => {
@@ -35,7 +48,24 @@ export const deleteNote = async (noteId: number): Promise<Note> => {
   return res.data;
 };
 
-export async function fetchById(id: number | string): Promise<Note> {
-  const response = await axios.get<Note>(`/notes/${id}`);
-  return response.data;
-}
+export const fetchNoteById = async (id: number): Promise<Note | undefined> => {
+  const res = await axios.get<Note>(`/notes/${id}`, {
+    headers: {
+      Authorization: `Bearer ${process.env.NEXT_PUBLIC_NOTEHUB_TOKEN}`,
+    },
+  });
+  return res.data;
+};
+
+export const getNotes = async (categoryId?: string) => {
+  const res = await axios.get<NoteListResponse>("/notes", {
+    params: { categoryId },
+  });
+  return res.data;
+};
+
+export const fetchCategories = async (): Promise<NoteCategory[]> => {
+  return new Promise((resolve) => {
+    resolve(categories);
+  });
+};

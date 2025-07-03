@@ -1,7 +1,13 @@
+"use client";
+import { TagsMenu } from "../TagsMenu/TagsMenu";
 import css from "./Header.module.css";
 import Link from "next/link";
+import { NoteCategory } from "../../types/note";
 
-const Header = () => {
+type Props = {
+  categories: NoteCategory[];
+};
+const Header = ({ categories }: Props) => {
   return (
     <header className={css.header}>
       <Link href="/" aria-label="Home">
@@ -10,10 +16,13 @@ const Header = () => {
       <nav aria-label="Main Navigation">
         <ul className={css.navigation}>
           <li>
+            <TagsMenu categories={categories} />
+          </li>
+          <li>
             <Link href="/">Home</Link>
           </li>
           <li>
-            <Link href="/notes">Notes</Link>
+            <Link href="/notes/filter/All">Notes</Link>
           </li>
         </ul>
       </nav>

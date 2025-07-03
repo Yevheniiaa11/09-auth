@@ -1,26 +1,29 @@
 "use client";
 import { useState } from "react";
-import { NoteList } from "../../components/NoteList/NoteList";
 import css from "./NotesPage.module.css";
 import { useQuery } from "@tanstack/react-query";
-import { fetchNotes } from "../../lib/api";
-import Pagination from "../../components/Pagination/Pagination";
-import SearchBox from "../../components/SearchBox/SearchBox";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import NoteModal from "../../components/NoteModal/NoteModal";
 import { useDebounce } from "use-debounce";
-import Loader from "../../components/Loader/Loader";
-import ErrorMessage from "../../components/ErrorMessage/ErrorMessage";
-import { Note } from "../../types/note";
+import Loader from "../../../../components/Loader/Loader";
+
+import { fetchNotes } from "../../../../lib/api";
+import SearchBox from "../../../../components/SearchBox/SearchBox";
+import Pagination from "../../../../components/Pagination/Pagination";
+import { NoteList } from "../../../../components/NoteList/NoteList";
+import NoteModal from "../../../../components/NoteModal/NoteModal";
+import { Note } from "../../../../types/note";
+import ErrorMessage from "../../../../components/ErrorMessage/ErrorMessage";
 
 type NotesClientProps = {
   initialNotes: Note[];
   initialTotalPages: number;
+  category: string;
 };
 export default function NotesClient({
   initialNotes,
   initialTotalPages,
+  category,
 }: NotesClientProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
@@ -41,7 +44,7 @@ export default function NotesClient({
   const closeModal = () => setIsModalOpen(false);
 
   const { data, isLoading, error, isFetching } = useQuery({
-    queryKey: ["notes", trimmedSearch, currentPage],
+    queryKey: ["notes", category, trimmedSearch, currentPage],
     queryFn: () => fetchNotes(trimmedSearch, currentPage),
     initialData:
       currentPage === 1 && trimmedSearch === ""
