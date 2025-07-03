@@ -1,41 +1,44 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { NoteCategory } from "../../types/note";
 import css from "./TagsMenu.module.css";
+const tags: string[] = ["Work", "Personal", "Meeting", "Shopping", "Todo"];
 
-type Props = {
-  categories: NoteCategory[];
-};
-
-export const TagsMenu = ({ categories }: Props) => {
+export default function TagsMenu() {
   const [isOpen, setIsOpen] = useState(false);
-  const toggle = () => setIsOpen(!isOpen);
+  function toggle() {
+    setIsOpen(!isOpen);
+  }
 
-  const allCategories = [{ id: 0, title: "All" }, ...categories];
   return (
     <div className={css.menuContainer}>
-      <button onClick={toggle} className={css.menuButton}>
+      <button className={css.menuButton} onClick={toggle}>
         Notes ▾
       </button>
       {isOpen && (
         <ul className={css.menuList}>
-          {allCategories.map((category) => {
-            console.log("Category:", category);
-            return (
-              <li key={category.id} className={css.menuItem}>
-                <Link
-                  href={`/notes/filter/${category.title}`}
-                  onClick={toggle}
-                  className={css.menuLink}
-                >
-                  {category.title}
-                </Link>
-              </li>
-            );
-          })}
+          <li className={css.menuItem}>
+            <Link
+              href={`/notes/filter/all`}
+              className={css.menuLink}
+              onClick={toggle}
+            >
+              All notes
+            </Link>
+          </li>
+          {tags.map((tag) => (
+            <li className={css.menuItem} key={tag}>
+              <Link
+                href={`/notes/filter/${tag}`}
+                className={css.menuLink}
+                onClick={toggle}
+              >
+                {tag}
+              </Link>
+            </li>
+          ))}
         </ul>
       )}
     </div>
   );
-};
+}
