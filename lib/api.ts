@@ -12,18 +12,30 @@ axios.defaults.headers.common.Authorization = `Bearer ${
   process.env.NEXT_PUBLIC_NOTEHUB_TOKEN
 }`;
 
+interface ParamsTypes {
+  page: number;
+  perPage: number;
+  search?: string;
+  tag?: string;
+}
 export const fetchNotes = async (
-  tag: string = "",
-  page: number = 1,
-  perPage: number = 12
-): Promise<{ notes: Note[]; totalPages: number }> => {
+  search: string,
+  page: number,
+  tag: string | undefined
+): Promise<NoteListResponse> => {
   try {
-    const params: Record<string, string | number> = {
+    const perPage = 12;
+    const params: ParamsTypes = {
+      tag,
       page,
       perPage,
     };
-    if (tag && tag.toLowerCase() !== "all") {
-      params.tag = tag.trim();
+
+    if (search?.trim()) {
+      params.search = search;
+    }
+    if (tag?.trim()) {
+      params.tag = tag;
     }
 
     const res = await axios.get<{ notes: Note[]; totalPages: number }>(
