@@ -5,6 +5,7 @@ import Modal from "../../../../components/Modal/Modal";
 import { useQuery } from "@tanstack/react-query";
 import { fetchNoteById } from "../../../../lib/api";
 import { Note } from "../../../../types/note";
+import css from "./NotePreview.module.css";
 
 export default function ModalClient() {
   const router = useRouter();
@@ -22,16 +23,27 @@ export default function ModalClient() {
   } = useQuery<Note>({
     queryKey: ["note", noteId],
     queryFn: () => fetchNoteById(noteId),
-    refetchOnMount: true,
+    refetchOnMount: false,
   });
   return (
     <Modal onClose={handleClose}>
       {isLoading && <p>Loading note...</p>}
       {isError && <p>Failed to load note</p>}
       {note && (
-        <div>
-          <h2>{note.title}</h2>
-          <p>{note.content}</p>
+        <div className={css.container}>
+          <button onClick={handleClose} className={css.backBtn}>
+            ← Назад
+          </button>
+          <div className={css.item}>
+            <div className={css.header}>
+              <h2>{note.title}</h2>
+              <span className={css.tag}>{note.tag}</span>
+            </div>
+            <div className={css.content}>{note.content}</div>
+            <div className={css.date}>
+              {new Date(note.createdAt).toLocaleDateString()}
+            </div>
+          </div>
         </div>
       )}
     </Modal>
