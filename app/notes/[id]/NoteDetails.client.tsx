@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { fetchNoteById } from "../../../lib/api";
 import css from "./NoteDetails.module.css";
+import Link from "next/link";
 
 export const NoteDetailsClient = () => {
   const { id } = useParams<{ id: string }>();
@@ -32,7 +33,9 @@ export const NoteDetailsClient = () => {
       <div className={css.item}>
         <div className={css.header}>
           <h2>{note.title}</h2>
-          <button className={css.editBtn}>Edit note</button>
+          <Link className={css.editBtn} href={"/notes/action/create"}>
+            Edit note
+          </Link>
         </div>
         <p className={css.content}>{note.content}</p>
         <p className={css.date}>

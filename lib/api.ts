@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { NewNoteData, Note, NoteListResponse } from "../types/note";
+import { NoteCategory, type Note, type NoteListResponse } from "../types/note";
 
 axios.defaults.baseURL = "https://notehub-public.goit.study/api";
 axios.defaults.headers.common.Authorization = `Bearer ${
@@ -36,16 +36,28 @@ export const fetchNotes = async (
   return res.data;
 };
 
-export const createNote = async (noteData: NewNoteData): Promise<Note> => {
-  const res = await axios.post<Note>("/notes", noteData);
+export type NewNoteData = {
+  title: string;
+  content: string;
+  categoryId: string;
+};
+
+export const createNote = async (data: NewNoteData) => {
+  const res = await axios.post<Note>("/notes", data);
   return res.data;
 };
+
 export const deleteNote = async (noteId: number): Promise<Note> => {
   const res = await axios.delete<Note>(`/notes/${noteId}`);
   return res.data;
 };
 
-export const fetchNoteById = async (id: number): Promise<Note> => {
+export const fetchNoteById = async (id: number | string): Promise<Note> => {
   const res = await axios.get<Note>(`/notes/${id}`);
   return res.data;
+};
+
+export const getCategories = async () => {
+  const { data } = await axios<NoteCategory[]>(`/categories`);
+  return data;
 };
