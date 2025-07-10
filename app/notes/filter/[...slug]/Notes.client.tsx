@@ -27,7 +27,7 @@ export default function NotesClient({
   const safeInitialTag = initialTag ?? "";
   const { data } = useQuery({
     queryKey: ["notes", debounceQuery, currentPage, initialTag],
-    queryFn: () => fetchNotes(searchText, currentPage, safeInitialTag),
+    queryFn: () => fetchNotes(debounceQuery, currentPage, safeInitialTag),
     placeholderData: keepPreviousData,
     refetchOnMount: false,
     initialData,
@@ -45,18 +45,19 @@ export default function NotesClient({
     <div className={css.app}>
       <div className={css.toolbar}>
         <SearchBox value={searchText} onSearch={handleChange} />
-        {totalPage > 1 && (
-          <Pagination
-            totalPages={totalPage}
-            currentPage={currentPage}
-            onPageChange={setCurrentPage}
-          />
-        )}
+
         <Link className={css.button} href="/notes/action/create">
           Create note +
         </Link>
       </div>
       {data && notes.length > 0 && <NoteList notes={notes} />}
+      {totalPage > 1 && (
+        <Pagination
+          totalPages={totalPage}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+        />
+      )}
     </div>
   );
 }

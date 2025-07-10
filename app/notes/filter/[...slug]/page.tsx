@@ -12,7 +12,8 @@ export async function generateMetadata({
   params,
 }: NotesProps): Promise<Metadata> {
   const { slug } = await params;
-  const tag = slug?.[0] ?? "all";
+  const rawTag = slug?.[0] ?? "all";
+  const tag = rawTag.toLowerCase();
 
   const title =
     tag === "all" ? "All Notes | NoteHub" : `Tag: "${tag}" | NoteHub`;
