@@ -6,7 +6,7 @@ import { createNote } from "../../lib/api";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import type { NewNoteData } from "../../lib/api";
-import { useNoteDraftStore } from "../../lib/stores/noteStore";
+import { useNoteDraftStore } from "../../lib/store/noteStore";
 
 export const NoteForm = () => {
   const router = useRouter();
@@ -23,29 +23,6 @@ export const NoteForm = () => {
       [event.target.name]: event.target.value,
     });
   };
-  //   event.preventDefault();
-  //   const formData = new FormData(event.currentTarget);
-  //   const values = Object.fromEntries(formData) as Record<string, string>;
-  //   const title = values.title.trim();
-  //   const content = values.content.trim();
-  //   const tag = values.tag;
-  //   if (!title) {
-  //     toast.error("Title is required");
-  //     return;
-  //   }
-  //   if (!tag) {
-  //     toast.error("Please select a tag");
-  //     return;
-  //   }
-  //   console.log("Sending data to API:", { title, content, tag });
-
-  //   mutate({
-  //     title,
-  //     content,
-  //     tag,
-  //   });
-  // };
-
   const { mutate } = useMutation({
     mutationFn: (data: NewNoteData) => createNote(data),
     onSuccess: () => {
