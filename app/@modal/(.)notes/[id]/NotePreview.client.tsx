@@ -32,7 +32,7 @@ export default function ModalClient() {
       {note && (
         <div className={css.container}>
           <button onClick={handleClose} className={css.backBtn}>
-            ← Назад
+            ← Back
           </button>
           <div className={css.item}>
             <div className={css.header}>

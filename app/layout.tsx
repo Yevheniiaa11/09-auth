@@ -17,7 +17,6 @@ const roboto = Roboto({
   variable: "--font-roboto",
   display: "swap",
 });
-
 export default function RootLayout({
   children,
   modal,

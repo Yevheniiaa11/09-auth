@@ -10,7 +10,7 @@ export interface Note {
 export interface NewNoteData {
   title: string;
   content: string;
-  categoryId: string;
+  tag: string;
 }
 
 export interface NoteCategory {

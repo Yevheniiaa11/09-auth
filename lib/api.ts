@@ -39,7 +39,7 @@ export const fetchNotes = async (
 export type NewNoteData = {
   title: string;
   content: string;
-  categoryId: string;
+  tag: string;
 };
 
 export const createNote = async (data: NewNoteData) => {
@@ -58,6 +58,7 @@ export const fetchNoteById = async (id: number | string): Promise<Note> => {
 };
 
 export const getCategories = async () => {
-  const { data } = await axios<NoteCategory[]>(`/categories`);
+  const { data } = await axios.get<NoteCategory[]>(`/notes `);
+  console.log("Data from /notes:", data);
   return data;
 };

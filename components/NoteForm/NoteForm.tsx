@@ -3,21 +3,53 @@
 import { useMutation } from "@tanstack/react-query";
 import css from "./NoteForm.module.css";
 import { createNote } from "../../lib/api";
-import type { NoteCategory } from "../../types/note";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import type { NewNoteData } from "../../lib/api";
+import { useNoteDraftStore } from "../../lib/stores/noteStore";
 
-type NoteFormProps = {
-  categories: NoteCategory[];
-};
-
-export const NoteForm = ({ categories }: NoteFormProps) => {
+export const NoteForm = () => {
   const router = useRouter();
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: createNote,
+  const { draft, setDraft, clearDraft } = useNoteDraftStore();
+
+  const handleCreate = (
+    event: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    setDraft({
+      ...draft,
+      [event.target.name]: event.target.value,
+    });
+  };
+  //   event.preventDefault();
+  //   const formData = new FormData(event.currentTarget);
+  //   const values = Object.fromEntries(formData) as Record<string, string>;
+  //   const title = values.title.trim();
+  //   const content = values.content.trim();
+  //   const tag = values.tag;
+  //   if (!title) {
+  //     toast.error("Title is required");
+  //     return;
+  //   }
+  //   if (!tag) {
+  //     toast.error("Please select a tag");
+  //     return;
+  //   }
+  //   console.log("Sending data to API:", { title, content, tag });
+
+  //   mutate({
+  //     title,
+  //     content,
+  //     tag,
+  //   });
+  // };
+
+  const { mutate } = useMutation({
+    mutationFn: (data: NewNoteData) => createNote(data),
     onSuccess: () => {
-      toast.success("Note created!");
+      clearDraft();
       router.push("/notes/filter/all");
     },
     onError: () => {
@@ -25,28 +57,25 @@ export const NoteForm = ({ categories }: NoteFormProps) => {
     },
   });
 
-  const handleCreate = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const values = Object.fromEntries(formData) as Record<string, string>;
-    const title = values.title.trim();
-    if (!title) {
-      toast.error("Title is required");
-      return;
-    }
-    mutate({
-      title,
-      content: values.content.trim(),
-      categoryId: values.categoryId,
-    });
+  const handleSubmit = (formData: FormData) => {
+    const values = Object.fromEntries(formData) as NewNoteData;
+    mutate(values);
   };
+
   const handleCancel = () => router.push("/notes/filter/all");
 
   return (
-    <form onSubmit={handleCreate} className={css.form}>
+    <form action={handleSubmit} className={css.form}>
       <div className={css.formGroup}>
         <label htmlFor="title">Title</label>
-        <input id="title" type="text" name="title" className={css.input} />
+        <input
+          id="title"
+          type="text"
+          name="title"
+          defaultValue={draft?.title}
+          className={css.input}
+          onChange={handleCreate}
+        />
       </div>
 
       <div className={css.formGroup}>
@@ -56,17 +85,29 @@ export const NoteForm = ({ categories }: NoteFormProps) => {
           name="content"
           rows={8}
           className={css.textarea}
+          defaultValue={draft?.content}
+          onChange={handleCreate}
         />
       </div>
 
       <div className={css.formGroup}>
-        <label htmlFor="tag">Tag</label>
-        <select id="tag" name="tag" className={css.select}>
-          {categories.map((category) => (
-            <option key={category.id} value={category.title}>
-              {category.title}
-            </option>
-          ))}
+        <label htmlFor="tag">Category</label>
+        <select
+          id="tag"
+          name="tag"
+          className={css.select}
+          defaultValue={draft?.tag}
+          onChange={handleCreate}
+          required
+        >
+          <option value="" disabled hidden>
+            Select a category
+          </option>
+          <option value="Todo">Todo</option>
+          <option value="Work">Work</option>
+          <option value="Personal">Personal</option>
+          <option value="Meeting">Meeting</option>
+          <option value="Shopping">Shopping</option>
         </select>
       </div>
 
@@ -78,7 +119,7 @@ export const NoteForm = ({ categories }: NoteFormProps) => {
         >
           Cancel
         </button>
-        <button type="submit" className={css.submitButton} disabled={isPending}>
+        <button type="submit" className={css.submitButton}>
           Create note
         </button>
       </div>

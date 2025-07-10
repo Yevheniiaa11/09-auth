@@ -1,6 +1,6 @@
 import { NoteCategory } from "../types/note";
 
-export const Categories: NoteCategory[] = [
+export const categories: NoteCategory[] = [
   { id: 1, title: "Work" },
   { id: 2, title: "Personal" },
   { id: 3, title: "Meeting" },
