@@ -4,8 +4,6 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import css from "./NotesPage.module.css";
 import { useState } from "react";
 import { useDebounce } from "use-debounce";
-import ErrorMessage from "../../../../components/ErrorMessage/ErrorMessage";
-import Loader from "../../../../components/Loader/Loader";
 import { fetchNotes } from "../../../../lib/api";
 import SearchBox from "../../../../components/SearchBox/SearchBox";
 import Pagination from "../../../../components/Pagination/Pagination";
@@ -14,42 +12,39 @@ import { NoteListResponse } from "../../../../types/note";
 import Link from "next/link";
 
 interface NotesClientProps {
-  initialQuery: string;
-  initialPage: number;
   initialTag?: string | undefined;
   initialData: NoteListResponse | undefined;
 }
 
 export default function NotesClient({
-  initialQuery,
-  initialPage,
   initialTag,
   initialData,
 }: NotesClientProps) {
-  const [query, setQuery] = useState<string>(initialQuery);
-  const [currentPage, setCurrentPage] = useState<number>(initialPage);
-  const [debounceQuery] = useDebounce(query, 500);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchText, setSearchText] = useState("");
 
-  const { data, isLoading, isError, isSuccess } = useQuery({
-    queryKey: ["notes", debounceQuery, initialTag, currentPage],
-    queryFn: () => fetchNotes(debounceQuery, currentPage, initialTag ?? ""),
+  const [debounceQuery] = useDebounce(searchText, 500);
+  const safeInitialTag = initialTag ?? "";
+  const { data } = useQuery({
+    queryKey: ["notes", debounceQuery, currentPage, initialTag],
+    queryFn: () => fetchNotes(searchText, currentPage, safeInitialTag),
     placeholderData: keepPreviousData,
     refetchOnMount: false,
     initialData,
   });
 
-  const notesRequest = data?.notes ?? [];
+  const notes = data?.notes ?? [];
   const totalPage = data?.totalPages ?? 1;
 
-  function handleChange(newQuery: string) {
-    setQuery(newQuery);
+  function handleChange(value: string) {
+    setSearchText(value);
     setCurrentPage(1);
   }
 
   return (
     <div className={css.app}>
       <div className={css.toolbar}>
-        <SearchBox value={query} onChange={handleChange} />
+        <SearchBox value={searchText} onSearch={handleChange} />
         {totalPage > 1 && (
           <Pagination
             totalPages={totalPage}
@@ -61,11 +56,7 @@ export default function NotesClient({
           Create note +
         </Link>
       </div>
-
-      {isLoading && <Loader />}
-
-      {isError && <ErrorMessage />}
-      {isSuccess && <NoteList notes={notesRequest} />}
+      {data && notes.length > 0 && <NoteList notes={notes} />}
     </div>
   );
 }
