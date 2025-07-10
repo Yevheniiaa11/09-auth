@@ -15,7 +15,7 @@ export interface NewNoteData {
 
 export interface NoteCategory {
   id: number;
-  title: string;
+  title?: string;
 }
 
 export interface NoteListResponse {

@@ -11,6 +11,7 @@ interface ParamsTypes {
   perPage: number;
   search?: string;
   tag?: string;
+  q?: string;
 }
 export const fetchNotes = async (
   search: string,
@@ -23,12 +24,13 @@ export const fetchNotes = async (
     perPage,
   };
 
-  if (tag?.trim()) {
-    params.tag = tag;
+  if (tag && tag.trim() !== "" && tag !== "all") {
+    params.tag = tag.trim();
   }
-  if (search?.trim()) {
-    params.search = search;
+  if (search && search.trim() !== "") {
+    params.q = search.trim();
   }
+  console.log("Fetch notes with params:", params);
 
   const res = await axios.get<{ notes: Note[]; totalPages: number }>("/notes", {
     params,
@@ -57,8 +59,23 @@ export const fetchNoteById = async (id: number | string): Promise<Note> => {
   return res.data;
 };
 
-export const getCategories = async () => {
-  const { data } = await axios.get<NoteCategory[]>(`/notes `);
-  console.log("Data from /notes:", data);
-  return data;
+export const getCategories = async (): Promise<NoteCategory[]> => {
+  try {
+    const initialNotesResponse = await axios.get<NoteListResponse>("/notes", {
+      params: { page: 1, perPage: 100 },
+    });
+
+    const notes = initialNotesResponse.data.notes;
+    const allTags = notes.map((note) => note.tag);
+    const uniqueTags = Array.from(new Set(allTags));
+    const categories: NoteCategory[] = uniqueTags.map((tag, index) => ({
+      id: index,
+      name: tag,
+    }));
+
+    return categories;
+  } catch (error) {
+    console.error("Error fetching categories by extracting from notes:", error);
+    throw error;
+  }
 };
