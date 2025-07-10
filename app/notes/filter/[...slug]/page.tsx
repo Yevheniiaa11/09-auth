@@ -20,7 +20,7 @@ export const revalidate = 60;
 export async function generateMetadata({
   params,
 }: NotesPageProps): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug } = params;
   const tag = slug?.[0] ?? "all";
 
   const title =
@@ -58,12 +58,9 @@ export async function generateMetadata({
 }
 
 export default async function Notes({ params, searchParams }: NotesPageProps) {
-  const awaitedParams = await Promise.resolve(params);
-  const awaitedSearchParams = await Promise.resolve(searchParams);
-  const initialPage = Number(awaitedSearchParams?.page) || 1;
-  const initialQuery = (awaitedSearchParams?.q as string) || "";
-  const tagFromSlug =
-    awaitedParams.slug?.[0] === "all" ? undefined : awaitedParams.slug?.[0];
+  const initialPage = Number(searchParams?.page) || 1;
+  const initialQuery = (searchParams?.q as string) || "";
+  const tagFromSlug = params.slug?.[0] === "all" ? undefined : params.slug?.[0];
   const queryClient = new QueryClient();
   const safeTag = tagFromSlug ?? "";
   await queryClient.prefetchQuery<NoteListResponse, Error>({
