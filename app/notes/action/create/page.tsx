@@ -3,10 +3,10 @@ import { NoteForm } from "../../../../components/NoteForm/NoteForm";
 import { Metadata } from "next/types";
 
 export const metadata: Metadata = {
-  title: "Create Note",
-  description: "Create a note in seconds — minimal effort, maximum clarity.",
+  title: "Create a New Note | NoteHub",
+  description: "Create a note with minimal effort and maximum clarity.",
   openGraph: {
-    title: "Create a New Note",
+    title: "Create a New Note | NoteHub",
     description:
       "Quickly jot down your ideas, tasks, or thoughts using our simple and intuitive note editor.",
     url: "https://notehub.com/notes/action/create",
