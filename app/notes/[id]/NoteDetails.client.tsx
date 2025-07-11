@@ -16,12 +16,12 @@ export const NoteDetailsClient = () => {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["notes", noteId],
+    queryKey: ["note", noteId],
     queryFn: () => fetchNoteById(noteId),
     refetchOnMount: false,
+    enabled: !isNaN(noteId),
   });
 
-  console.log(note);
   if (isNaN(noteId)) {
     return <p>Invalid note ID</p>;
   }
@@ -30,8 +30,13 @@ export const NoteDetailsClient = () => {
   if (error || !note) return <p>Something went wrong.</p>;
 
   const handleClose = () => {
-    router.back();
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push("/notes/filter/all");
+    }
   };
+
   return (
     <div className={css.container}>
       <div className={css.item}>
