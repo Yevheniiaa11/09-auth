@@ -40,13 +40,17 @@ export default function NotePreview({ noteId, onClose }: NotePreviewProps) {
 
   return (
     <div className={css.container}>
+      <button
+        className={css.closeButton}
+        onClick={handleClose}
+        aria-label="Close note preview"
+      >
+        ✖
+      </button>
       {note && (
         <div className={css.item}>
           <div className={css.header}>
             <h2>{note.title}</h2>
-            <button className={css.backBtn} onClick={handleClose}>
-              Close
-            </button>
           </div>
           <p className={css.tag}>{note.tag}</p>
           <p className={css.content}>{note.content}</p>

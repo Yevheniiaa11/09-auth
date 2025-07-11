@@ -55,14 +55,17 @@
 }
 
 .backBtn {
-  align-self: flex-start;
+  align-self: flex-end;
   padding: 6px 12px;
   font-size: 14px;
   color: #000000;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  text-decoration: underline;
   display: inline-block;
   background-color: transparent;
+}
+
+.backBtn:hover {
+  color: #887c7c81;
 }

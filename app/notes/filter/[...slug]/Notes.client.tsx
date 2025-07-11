@@ -26,7 +26,7 @@ export default function NotesClient({
   const [debounceQuery] = useDebounce(searchText, 500);
   const safeInitialTag = initialTag ?? "";
   const { data } = useQuery({
-    queryKey: ["notes", debounceQuery, currentPage, initialTag],
+    queryKey: ["notes", debounceQuery, currentPage, safeInitialTag],
     queryFn: () => fetchNotes(debounceQuery, currentPage, safeInitialTag),
     placeholderData: keepPreviousData,
     refetchOnMount: false,
