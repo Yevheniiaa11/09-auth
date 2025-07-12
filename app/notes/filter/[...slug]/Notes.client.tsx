@@ -12,51 +12,45 @@ import { NoteListResponse } from "../../../../types/note";
 import Link from "next/link";
 
 interface NotesClientProps {
-  initialTag?: string | undefined;
-  initialData: NoteListResponse | undefined;
+  initialData: NoteListResponse;
+  tag: string;
 }
 
-export default function NotesClient({
-  initialTag,
-  initialData,
-}: NotesClientProps) {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchText, setSearchText] = useState("");
+export default function NotesClient({ initialData, tag }: NotesClientProps) {
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [debounceQuery] = useDebounce(search, 500);
 
-  const [debounceQuery] = useDebounce(searchText, 500);
-  const safeInitialTag = initialTag ?? "";
-  const { data } = useQuery({
-    queryKey: ["notes", debounceQuery, currentPage, safeInitialTag],
-    queryFn: () => fetchNotes(debounceQuery, currentPage, safeInitialTag),
+  const allNotes = useQuery({
+    queryKey: ["allNotes", debounceQuery, page, tag],
+    queryFn: () => fetchNotes(page, debounceQuery, tag),
     placeholderData: keepPreviousData,
     refetchOnMount: false,
-    initialData,
+    initialData: page === 1 && search === "" ? initialData : undefined,
   });
 
-  const notes = data?.notes ?? [];
-  const totalPage = data?.totalPages ?? 1;
-
-  function handleChange(value: string) {
-    setSearchText(value);
-    setCurrentPage(1);
+  function handleSearch(search: string) {
+    setSearch(search);
+    setPage(1);
   }
-
   return (
     <div className={css.app}>
       <div className={css.toolbar}>
-        <SearchBox value={searchText} onSearch={handleChange} />
+        <SearchBox onSearch={handleSearch} value={search} />
 
-        <Link className={css.button} href="/notes/action/create">
+        {allNotes.isSuccess && allNotes.data.totalPages > 1 && (
+          <Pagination
+            currentPage={page}
+            totalPages={allNotes.data.totalPages}
+            onPageChange={setPage}
+          />
+        )}
+        <Link href={"/notes/action/create"} className={css.button}>
           Create note +
         </Link>
       </div>
-      {data && notes.length > 0 && <NoteList notes={notes} />}
-      {totalPage > 1 && (
-        <Pagination
-          totalPages={totalPage}
-          currentPage={currentPage}
-          onPageChange={setCurrentPage}
-        />
+      {allNotes.isSuccess && allNotes.data.notes.length > 0 && (
+        <NoteList notes={allNotes.data.notes} />
       )}
     </div>
   );

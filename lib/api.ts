@@ -6,38 +6,21 @@ axios.defaults.headers.common.Authorization = `Bearer ${
   process.env.NEXT_PUBLIC_NOTEHUB_TOKEN
 }`;
 
-interface ParamsTypes {
-  page: number;
-  perPage: number;
-  search?: string;
-  tag?: string;
-  q?: string;
-}
-export const fetchNotes = async (
-  search: string,
+export async function fetchNotes(
   page: number,
-  tag: string
-): Promise<NoteListResponse> => {
-  const perPage = 12;
-  const params: ParamsTypes = {
-    page,
-    perPage,
-  };
-
-  if (tag && tag.trim() !== "" && tag !== "all") {
-    params.tag = tag.trim();
-  }
-  if (search && search.trim() !== "") {
-    params.q = search.trim();
-  }
-  console.log("Fetch notes with params:", params);
-
-  const res = await axios.get<{ notes: Note[]; totalPages: number }>("/notes", {
-    params,
+  searchText: string,
+  tag?: string
+): Promise<NoteListResponse> {
+  const { data } = await axios.get<NoteListResponse>("/notes", {
+    params: {
+      page,
+      perPage: 16,
+      ...(searchText !== "" ? { search: searchText } : {}),
+      ...(tag?.toLowerCase() !== "all" ? { tag } : {}),
+    },
   });
-  return res.data;
-};
-
+  return data;
+}
 export type NewNoteData = {
   title: string;
   content: string;

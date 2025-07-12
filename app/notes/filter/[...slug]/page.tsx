@@ -12,29 +12,16 @@ export async function generateMetadata({
   params,
 }: NotesProps): Promise<Metadata> {
   const { slug } = await params;
-  const rawTag = slug?.[0] ?? "all";
-  const tag = rawTag.toLowerCase();
 
-  const title =
-    tag === "all" ? "All Notes | NoteHub" : `Tag: "${tag}" | NoteHub`;
-
-  const description =
-    tag === "all"
-      ? "View all your notes in one place."
-      : `Notes with the tag "${tag}".`;
-
-  const url =
-    tag === "all"
-      ? "https://notehub.com/notes"
-      : `https://notehub.com/notes/filter/${tag}`;
+  const tag = slug[0];
 
   return {
-    title: `Notes: ${title}`,
-    description: description,
+    title: `Notes sorted by "${tag}" category`,
+    description: `This page include all your notes in "${tag}" category`,
     openGraph: {
-      title: `Notes: ${title}`,
-      description: description,
-      url: url,
+      title: `Notes sorted by "${tag}" category`,
+      description: `This page include all your notes in "${tag}" category`,
+      url: `https://08-zustand-zeta.vercel.app/notes/filter/${tag}`,
       siteName: "NoteHub",
       images: [
         {
@@ -50,10 +37,7 @@ export async function generateMetadata({
 }
 export default async function Notes({ params }: NotesProps) {
   const { slug } = await params;
-
-  const category = slug[0] === "All" ? undefined : slug[0];
-  const safeCategory = category ?? "";
-  const initialData = await fetchNotes("", 1, safeCategory);
-
-  return <NotesClient initialData={initialData} initialTag={safeCategory} />;
+  const tag = slug[0];
+  const response = await fetchNotes(1, "", tag);
+  return <NotesClient initialData={response} tag={tag} />;
 }
