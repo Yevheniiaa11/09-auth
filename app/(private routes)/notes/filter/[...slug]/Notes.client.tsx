@@ -4,12 +4,13 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import css from "./NotesPage.module.css";
 import { useState } from "react";
 import { useDebounce } from "use-debounce";
-import { fetchNotes } from "../../../../lib/api";
-import SearchBox from "../../../../components/SearchBox/SearchBox";
-import Pagination from "../../../../components/Pagination/Pagination";
-import { NoteList } from "../../../../components/NoteList/NoteList";
-import { NoteListResponse } from "../../../../types/note";
+
 import Link from "next/link";
+import { NoteListResponse } from "../../../../../types/note";
+import { fetchNotes } from "../../../../../lib/api/clientApi";
+import SearchBox from "../../../../../components/SearchBox/SearchBox";
+import Pagination from "../../../../../components/Pagination/Pagination";
+import { NoteList } from "../../../../../components/NoteList/NoteList";
 
 interface NotesClientProps {
   initialData: NoteListResponse;

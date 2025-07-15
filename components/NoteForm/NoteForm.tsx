@@ -2,15 +2,14 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import css from "./NoteForm.module.css";
-import { createNote } from "../../lib/api";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import type { NewNoteData } from "../../lib/api";
 import { useNoteDraftStore } from "../../lib/store/noteStore";
+import { createNote, NewNoteData } from "../../lib/api/clientApi";
 
 export const NoteForm = () => {
-  const router = useRouter();
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const { draft, setDraft, clearDraft } = useNoteDraftStore();
 
@@ -24,6 +23,7 @@ export const NoteForm = () => {
       [event.target.name]: event.target.value,
     });
   };
+
   const { mutate } = useMutation({
     mutationFn: (data: NewNoteData) => createNote(data),
     onSuccess: () => {

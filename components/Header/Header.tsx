@@ -1,4 +1,4 @@
-"use client";
+import { AuthNavigation } from "../AuthNavigation/AuthNavigation";
 import TagsMenu from "../TagsMenu/TagsMenu";
 import css from "./Header.module.css";
 import Link from "next/link";
@@ -9,7 +9,7 @@ export default function Header() {
       <Link href="/" aria-label="Home">
         NoteHub
       </Link>
-      <nav aria-label="Main Navigation">
+      <nav className={css.mainNavigation} aria-label="Main Navigation">
         <ul className={css.navigation}>
           <li>
             <Link href="/">Home</Link>
@@ -17,6 +17,10 @@ export default function Header() {
           <li>
             <TagsMenu />
           </li>
+        </ul>
+
+        <ul className={css.navigation}>
+          <AuthNavigation />
         </ul>
       </nav>
     </header>

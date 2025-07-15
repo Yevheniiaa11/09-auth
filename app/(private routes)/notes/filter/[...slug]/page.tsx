@@ -1,4 +1,5 @@
-import { fetchNotes } from "../../../../lib/api";
+import { cookies } from "next/headers";
+import { fetchNotesServer } from "../../../../../lib/api/serverApi";
 import NotesClient from "./Notes.client";
 import { Metadata } from "next";
 
@@ -38,6 +39,14 @@ export async function generateMetadata({
 export default async function Notes({ params }: NotesProps) {
   const { slug } = await params;
   const tag = slug[0];
-  const response = await fetchNotes(1, "", tag);
+
+  const cookieStore = await cookies();
+  const token = cookieStore.get("notehub_token")?.value;
+
+  if (!token) {
+    throw new Error("No token found. Are you logged in?");
+  }
+
+  const response = await fetchNotesServer(`notehub_token=${token}`, 1, tag);
   return <NotesClient initialData={response} tag={tag} />;
 }

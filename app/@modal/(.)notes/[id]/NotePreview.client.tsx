@@ -3,14 +3,14 @@ import { useParams, useRouter } from "next/navigation";
 import React from "react";
 import Modal from "../../../../components/Modal/Modal";
 import { useQuery } from "@tanstack/react-query";
-import { fetchNoteById } from "../../../../lib/api";
 import { Note } from "../../../../types/note";
 import css from "./NotePreview.module.css";
+import { fetchNoteById } from "../../../../lib/api/clientApi";
 
 export default function ModalClient() {
   const router = useRouter();
   const { id } = useParams();
-  const noteId = Number(id);
+  const noteId = id as string;
 
   function handleClose() {
     router.back();

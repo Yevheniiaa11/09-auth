@@ -1,5 +1,5 @@
 "use client";
-import { fetchNoteById } from "../../lib/api";
+import { fetchNoteById } from "../../lib/api/clientApi";
 import { Note } from "../../types/note";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
 import Loader from "../Loader/Loader";
@@ -7,7 +7,7 @@ import css from "./NotePreview.module.css";
 import { useQuery } from "@tanstack/react-query";
 
 interface NotePreviewProps {
-  noteId: number;
+  noteId: string;
   onClose?: () => void;
 }
 
