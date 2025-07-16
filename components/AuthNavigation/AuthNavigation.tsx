@@ -4,6 +4,7 @@ import css from "./AuthNavigation.module.css";
 import { useAuthStore } from "../../lib/store/authStore";
 import { useRouter } from "next/navigation";
 import { logout } from "../../lib/api/clientApi";
+import { useEffect } from "react";
 
 export const AuthNavigation = () => {
   const router = useRouter();
@@ -11,14 +12,21 @@ export const AuthNavigation = () => {
   const clearIsAuthenticated = useAuthStore(
     (state) => state.clearIsAuthenticated
   );
-  const handleLogout = async () => {
-    await logout();
-    clearIsAuthenticated();
-    router.push("/sign-in");
-  };
-  console.log("user", user);
-  console.log("auth", isAuthenticated);
 
+  useEffect(() => {
+    console.log("AuthNavigation: isAuthenticated =", isAuthenticated);
+    console.log("AuthNavigation: user =", user);
+  }, [isAuthenticated, user]);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      clearIsAuthenticated();
+      router.push("/sign-in");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
   return isAuthenticated ? (
     <>
       <li className={css.navigationItem}>

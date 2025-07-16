@@ -1,7 +1,6 @@
-import { api } from "./api";
+import { nextApi } from "./api";
 import { Note, NoteListResponse } from "../../types/note";
-import { AuthSuccessData, LoginResult, User } from "../../types/user";
-import axios from "axios";
+import { User } from "../../types/user";
 
 export interface ParamsTypes {
   page: number;
@@ -21,7 +20,7 @@ export const fetchNotes = async (
   searchText: string,
   tag?: string
 ): Promise<NoteListResponse> => {
-  const { data } = await api.get<NoteListResponse>("/notes", {
+  const { data } = await nextApi.get<NoteListResponse>("/notes", {
     params: {
       page,
       perPage: 16,
@@ -33,17 +32,17 @@ export const fetchNotes = async (
 };
 
 export const createNote = async (data: NewNoteData): Promise<Note> => {
-  const res = await api.post<Note>("/notes", data);
+  const res = await nextApi.post<Note>("/notes", data);
   return res.data;
 };
 
 export const deleteNote = async (noteId: string): Promise<Note> => {
-  const res = await api.delete<Note>(`/notes/${noteId}`);
+  const res = await nextApi.delete<Note>(`/notes/${noteId}`);
   return res.data;
 };
 
 export const fetchNoteById = async (id: string): Promise<Note> => {
-  const res = await api.get<Note>(`/notes/${id}`);
+  const res = await nextApi.get<Note>(`/notes/${id}`);
   return res.data;
 };
 
@@ -53,7 +52,7 @@ export type RegisterRequest = {
 };
 
 export const register = async (data: RegisterRequest) => {
-  const res = await api.post<User>("/auth/register", data);
+  const res = await nextApi.post<User>("/auth/register", data);
   return res.data;
 };
 
@@ -62,47 +61,27 @@ export type LoginRequest = {
   password: string;
 };
 
-export const login = async (data: LoginRequest): Promise<LoginResult> => {
-  try {
-    const res = await api.post<AuthSuccessData>("/auth/login", data);
-    return { ok: true, data: res.data };
-  } catch (error: unknown) {
-    console.error("Login API error:", error);
-
-    let errorMessage: string =
-      "An unexpected error occurred. Please try again.";
-
-    if (axios.isAxiosError(error)) {
-      errorMessage =
-        error.response?.data?.message ||
-        error.message ||
-        "Failed to log in via API.";
-    } else if (error instanceof Error) {
-      errorMessage = error.message;
-    }
-
-    return {
-      ok: false,
-      error: errorMessage,
-    };
-  }
+export const login = async (data: LoginRequest): Promise<User> => {
+  const response = await nextApi.post<User>("/auth/login", data);
+  return response.data;
 };
-type CheckSessionRequest = {
+
+type CheckSessionResponse = {
   success: boolean;
 };
 
 export const checkSession = async () => {
-  const res = await api.get<CheckSessionRequest>("/auth/session");
-  return res.data.success;
+  const res = await nextApi.get<CheckSessionResponse>("/auth/session");
+  return res;
 };
 
 export const getMe = async () => {
-  const responce = await api.get<User>("/users/me");
-  return responce.data;
+  const response = await nextApi.get<User>("/users/me");
+  return response.data;
 };
 
 export const logout = async (): Promise<void> => {
-  await api.post("/auth/logout");
+  await nextApi.post("/auth/logout");
 };
 
 export type CategoryType = {
@@ -114,7 +93,7 @@ export type CategoryType = {
 };
 
 export const getCategories = async () => {
-  const { data } = await api<CategoryType[]>(`/categories`);
+  const { data } = await nextApi<CategoryType[]>(`/categories`);
   return data;
 };
 
@@ -124,7 +103,7 @@ export type UpdateUserRequest = {
 };
 
 export const updateMe = async (payload: UpdateUserRequest) => {
-  const res = await api.put<User>("/users/me", payload);
+  const res = await nextApi.put<User>("/users/me", payload);
   return res.data;
 };
 

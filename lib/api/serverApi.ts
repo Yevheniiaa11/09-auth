@@ -1,41 +1,33 @@
-import { Note, NoteListResponse } from "../../types/note";
+import { Note } from "../../types/note";
 import { cookies } from "next/headers";
-import { ParamsTypes } from "./clientApi";
-import { api } from "./api";
+import { nextApi } from "./api";
 import { User } from "../../types/user";
 
-export async function fetchNotesServer(
-  search: string,
+export const fetchNotesServer = async (
   page: number,
-  tag: string | undefined
-): Promise<NoteListResponse> {
-  const params: ParamsTypes = {
-    ...(search.trim() !== "" && { query: search.trim() }),
-    page,
-    perPage: 12,
-    tag,
-  };
+  search = "",
+  tag?: string,
+  perPage = 12
+): Promise<{ notes: Note[]; totalPages: number }> => {
+  const params: Record<string, string | number> = { page, perPage };
+  if (search.trim()) params.search = search.trim();
+  if (tag && tag !== "all") params.tag = tag;
 
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get("accessToken")?.value;
+  const headers = await getSSRHeaders();
 
-  if (!accessToken) {
-    throw new Error("No access token");
-  }
-
-  const response = await api.get<NoteListResponse>("/notes", {
-    params,
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-
+  const response = await nextApi.get<{ notes: Note[]; totalPages: number }>(
+    "/notes",
+    {
+      params,
+      ...headers,
+    }
+  );
   return response.data;
-}
+};
 
 export async function fetchNoteByIdServer(noteId: string): Promise<Note> {
   const cookieStore = await cookies();
-  const response = await api.get<Note>(`/notes/${noteId}`, {
+  const response = await nextApi.get<Note>(`/notes/${noteId}`, {
     headers: {
       Cookie: cookieStore.toString(),
     },
@@ -45,25 +37,24 @@ export async function fetchNoteByIdServer(noteId: string): Promise<Note> {
 
 export async function checkServerSession() {
   const cookieStore = await cookies();
-  const res = await api.get("/auth/session", {
+  const res = await nextApi.get("/auth/session", {
     headers: {
       Cookie: cookieStore.toString(),
     },
   });
   return res;
 }
-
-export const getMeServer = async () => {
+const getSSRHeaders = async () => {
   const cookieStore = await cookies();
-  const cookieHeader = cookieStore
-    .getAll()
-    .map(({ name, value }) => `${name}=${value}`)
-    .join("; ");
-
-  const response = await api.get<User>("/users/me", {
+  return {
     headers: {
-      Cookie: cookieHeader,
+      Cookie: cookieStore.toString(),
     },
-  });
+  };
+};
+
+export const getMeServer = async (): Promise<User> => {
+  const headers = await getSSRHeaders();
+  const response = await nextApi.get<User>("/users/me", headers);
   return response.data;
 };

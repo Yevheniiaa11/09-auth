@@ -12,19 +12,22 @@ export default function SignUp() {
 
   const handleSubmit = async (formData: FormData) => {
     try {
-      const formValues = Object.fromEntries(formData) as RegisterRequest;
-      const res = await register(formValues);
+      const payload: RegisterRequest = {
+        email: formData.get("email") as string,
+        password: formData.get("password") as string,
+      };
 
-      if (res) {
-        setUser(res);
-        await new Promise((resolve) => setTimeout(resolve, 200)); // даємо час на збереження cookie
-        router.replace("/profile");
+      const user = await register(payload);
+
+      if (user) {
+        setUser(user);
+        router.push("/profile");
       } else {
-        setError("Invalid email or password");
+        setError("Registration failed");
       }
-    } catch (error) {
-      console.error("Registration error:", error);
-      setError("Invalid email or password");
+    } catch (err) {
+      console.error(err);
+      setError("Registration failed");
     }
   };
 

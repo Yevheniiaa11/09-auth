@@ -14,17 +14,20 @@ import { NoteList } from "../../../../../components/NoteList/NoteList";
 
 interface NotesClientProps {
   initialData: NoteListResponse;
-  tag: string;
+  filterTag?: string;
 }
 
-export default function NotesClient({ initialData, tag }: NotesClientProps) {
+export default function NotesClient({
+  initialData,
+  filterTag,
+}: NotesClientProps) {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [debounceQuery] = useDebounce(search, 500);
 
   const allNotes = useQuery({
-    queryKey: ["allNotes", debounceQuery, page, tag],
-    queryFn: () => fetchNotes(page, debounceQuery, tag),
+    queryKey: ["allNotes", debounceQuery, page, filterTag],
+    queryFn: () => fetchNotes(page, debounceQuery, filterTag),
     placeholderData: keepPreviousData,
     refetchOnMount: false,
     initialData: page === 1 && search === "" ? initialData : undefined,

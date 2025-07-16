@@ -1,40 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
 import { api } from "../../api";
-import { parse } from "cookie";
 import { cookies } from "next/headers";
+import { parse } from "cookie";
 
-export async function POST(request: NextRequest) {
-  const body = await request.json();
-  const response = await api.post("/auth/login", body);
+export async function POST(req: NextRequest) {
+  const body = await req.json();
+  const apiRes = await api.post("auth/login", body);
 
-  const cookieData = await cookies();
+  const cookieStore = await cookies();
+  const setCookie = apiRes.headers["set-cookie"];
 
-  const setCookies = response.headers["set-cookie"];
-
-  if (setCookies) {
-    const cookiesArray = Array.isArray(setCookies) ? setCookies : [setCookies];
-
-    for (const newCookieStr of cookiesArray) {
-      const parsedCookie = parse(newCookieStr);
+  if (setCookie) {
+    const cookieArray = Array.isArray(setCookie) ? setCookie : [setCookie];
+    for (const cookieStr of cookieArray) {
+      const parsed = parse(cookieStr);
       const options = {
-        path: parsedCookie.Path,
-        maxAge: Number(parsedCookie["Max-Age"]),
-        expires: parsedCookie.Expires
-          ? new Date(parsedCookie.Expires)
-          : undefined,
-        httpOnly: true,
-        secure: true,
+        expires: parsed.Expires ? new Date(parsed.Expires) : undefined,
+        path: parsed.Path,
+        maxAge: Number(parsed["Max-Age"]),
       };
-      if (parsedCookie.accessToken) {
-        cookieData.set("accessToken", parsedCookie.accessToken, options);
-      }
-      if (parsedCookie.refreshToken) {
-        cookieData.set("refreshToken", parsedCookie.refreshToken, options);
-      }
+      if (parsed.accessToken)
+        cookieStore.set("accessToken", parsed.accessToken, options);
+      if (parsed.refreshToken)
+        cookieStore.set("refreshToken", parsed.refreshToken, options);
     }
+
+    return NextResponse.json(apiRes.data);
   }
 
-  if (response.data) return NextResponse.json(response.data);
-
-  return NextResponse.json({ status: "500", message: "Some error" });
+  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 }
