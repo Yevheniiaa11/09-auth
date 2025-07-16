@@ -97,8 +97,8 @@ export const checkSession = async () => {
 };
 
 export const getMe = async () => {
-  const { data } = await api.get<User>("/users/me");
-  return data;
+  const responce = await api.get<User>("/users/me");
+  return responce.data;
 };
 
 export const logout = async (): Promise<void> => {

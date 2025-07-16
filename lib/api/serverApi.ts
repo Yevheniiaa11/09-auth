@@ -54,6 +54,16 @@ export async function checkServerSession() {
 }
 
 export const getMeServer = async () => {
-  const response = await api.get<User>("/users/me");
+  const cookieStore = await cookies();
+  const cookieHeader = cookieStore
+    .getAll()
+    .map(({ name, value }) => `${name}=${value}`)
+    .join("; ");
+
+  const response = await api.get<User>("/users/me", {
+    headers: {
+      Cookie: cookieHeader,
+    },
+  });
   return response.data;
 };
