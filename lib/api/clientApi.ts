@@ -1,6 +1,7 @@
 import { api } from "./api";
 import { Note, NoteListResponse } from "../../types/note";
-import { User } from "../../types/user";
+import { AuthSuccessData, LoginResult, User } from "../../types/user";
+import axios from "axios";
 
 export interface ParamsTypes {
   page: number;
@@ -61,11 +62,31 @@ export type LoginRequest = {
   password: string;
 };
 
-export const login = async (data: LoginRequest) => {
-  const res = await api.post<User>("/auth/login", data);
-  return res.data;
-};
+export const login = async (data: LoginRequest): Promise<LoginResult> => {
+  try {
+    const res = await api.post<AuthSuccessData>("/auth/login", data);
+    return { ok: true, data: res.data };
+  } catch (error: unknown) {
+    console.error("Login API error:", error);
 
+    let errorMessage: string =
+      "An unexpected error occurred. Please try again.";
+
+    if (axios.isAxiosError(error)) {
+      errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to log in via API.";
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+
+    return {
+      ok: false,
+      error: errorMessage,
+    };
+  }
+};
 type CheckSessionRequest = {
   success: boolean;
 };

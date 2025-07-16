@@ -1,34 +1,52 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { login, LoginRequest } from "../../../lib/api/clientApi";
+import { login } from "../../../lib/api/clientApi";
 import css from "./SignInPage.module.css";
 import { useState } from "react";
-import { useAuthStore } from "../../../lib/store/authStore";
+import axios from "axios";
 
 const SignIn = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const [error, setError] = useState("");
-  const setUser = useAuthStore((state) => state.setUser);
-  const handleSubmit = async (formData: FormData) => {
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
     try {
-      const formValues = Object.fromEntries(formData) as LoginRequest;
-      const res = await login(formValues);
-      if (res) {
-        setUser(res);
-        router.push("/profile");
+      const response = await login({ email, password });
+      if (response.ok) {
+        if (response.data && response.data.token) {
+          router.push("/notes");
+        } else {
+          setError(
+            "Login succeeded, but no authentication token was received."
+          );
+        }
       } else {
-        setError("Invalid email or password");
+        setError(
+          response.error || "Login failed. Please check your credentials."
+        );
       }
-    } catch (error) {
-      console.log("error", error);
-      setError("Invalid email or password");
+    } catch (error: unknown) {
+      console.error("Login error (caught):", error);
+
+      if (axios.isAxiosError(error)) {
+        const apiErrorMessage = error.response?.data?.message || error.message;
+        setError(`API Error: ${apiErrorMessage || "Unknown API error."}`);
+      } else if (error instanceof Error) {
+        setError(`Application Error: ${error.message}`);
+      } else {
+        setError("An unexpected error occurred. Please try again later.");
+      }
     }
   };
 
   return (
     <main className={css.mainContent}>
-      <form className={css.form} action={handleSubmit}>
+      <form className={css.form} onSubmit={handleSubmit}>
         <h1 className={css.formTitle}>Sign in</h1>
 
         <div className={css.formGroup}>
@@ -38,7 +56,9 @@ const SignIn = () => {
             type="email"
             name="email"
             className={css.input}
+            value={email}
             required
+            onChange={(e) => setEmail(e.target.value)}
           />
         </div>
 
@@ -50,6 +70,8 @@ const SignIn = () => {
             name="password"
             className={css.input}
             required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
         </div>
 

@@ -7,3 +7,15 @@ export type User = {
   updatedAt: Date;
   avatar?: string;
 };
+
+export interface AuthSuccessData {
+  user: User;
+  token: string;
+  refreshToken?: string;
+}
+
+export interface LoginResult {
+  ok: boolean;
+  data?: AuthSuccessData;
+  error?: string;
+}

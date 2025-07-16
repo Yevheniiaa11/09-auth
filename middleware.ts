@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { parse } from "cookie";
 import { checkServerSession } from "./lib/api/serverApi";
 
 const privateRoutes = ["/profile"];
@@ -27,37 +26,16 @@ export async function middleware(request: NextRequest) {
         const setCookie = data.headers["set-cookie"];
 
         if (setCookie) {
-          const response = isPublicRoute
-            ? NextResponse.redirect(new URL("/profile", request.url))
-            : NextResponse.next();
-
           const cookieArray = Array.isArray(setCookie)
             ? setCookie
             : [setCookie];
 
-          for (const cookieStr of cookieArray) {
-            const parsed = parse(cookieStr);
+          const response = isPublicRoute
+            ? NextResponse.redirect(new URL("/profile", request.url))
+            : NextResponse.next();
 
-            const options = {
-              expires: parsed.Expires ? new Date(parsed.Expires) : undefined,
-              path: parsed.Path || "/",
-              maxAge: parsed["Max-Age"] ? Number(parsed["Max-Age"]) : undefined,
-              httpOnly: true,
-              secure: process.env.NODE_ENV === "production",
-              sameSite: "lax" as const,
-            };
-
-            if (parsed.accessToken) {
-              response.cookies.set("accessToken", parsed.accessToken, options);
-            }
-            if (parsed.refreshToken) {
-              response.cookies.set(
-                "refreshToken",
-                parsed.refreshToken,
-                options
-              );
-            }
-          }
+          // УВАГА: ми не використовуємо `.cookies.set`, а додаємо Set-Cookie заголовки
+          response.headers.set("Set-Cookie", cookieArray.join(", "));
 
           return response;
         }
@@ -67,17 +45,14 @@ export async function middleware(request: NextRequest) {
           err instanceof Error ? err.message : err
         );
 
-        // Якщо помилка перевірки refresh токена — редірект на sign-in
         if (isPrivateRoute) {
           return NextResponse.redirect(new URL("/sign-in", request.url));
         }
 
-        // Якщо публічний маршрут — просто пропускаємо
         return NextResponse.next();
       }
     }
 
-    // Якщо взагалі немає accessToken і refreshToken
     if (isPrivateRoute) {
       return NextResponse.redirect(new URL("/sign-in", request.url));
     }
@@ -85,7 +60,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Якщо accessToken є
+  // Якщо accessToken існує
   if (isPublicRoute) {
     return NextResponse.redirect(new URL("/profile", request.url));
   }
