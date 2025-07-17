@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import css from "./TagsMenu.module.css";
-const tags: string[] = ["Work", "Personal", "Meeting", "Shopping", "Todo"];
+import { tags } from "../../types/note";
 
 export default function TagsMenu() {
   const [isOpen, setIsOpen] = useState(false);

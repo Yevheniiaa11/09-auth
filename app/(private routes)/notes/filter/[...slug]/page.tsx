@@ -1,4 +1,5 @@
 import { fetchNotesServer } from "../../../../../lib/api/serverApi";
+import { Tag } from "../../../../../types/note";
 import NotesClient from "./Notes.client";
 import { Metadata } from "next";
 
@@ -35,9 +36,10 @@ export async function generateMetadata({
 }
 export default async function Notes({ params }: NotesProps) {
   const { slug } = await params;
-  const tagParam = slug[0]?.toLowerCase();
-  const tag = tagParam === "all" ? undefined : slug[0];
+  const tag =
+    slug.length > 0 && slug[0] !== "All" ? (slug[0] as Tag) : undefined;
 
-  const response = await fetchNotesServer(1, "", tag);
-  return <NotesClient initialData={response} filterTag={tag} />;
+  const initialNotesData = await fetchNotesServer("", 1, tag);
+
+  return <NotesClient initialNotesData={initialNotesData} tag={tag} />;
 }

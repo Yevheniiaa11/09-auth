@@ -2,7 +2,8 @@
 
 import { useEffect } from "react";
 import { useAuthStore } from "../../lib/store/authStore";
-import { checkSession, getMe } from "../../lib/api/clientApi";
+import { getMe } from "../../lib/api/clientApi";
+import { AxiosError } from "axios";
 
 type Props = {
   children: React.ReactNode;
@@ -10,24 +11,40 @@ type Props = {
 
 const AuthProvider = ({ children }: Props) => {
   const setUser = useAuthStore((state) => state.setUser);
-  const clearIsAuthenticated = useAuthStore(
-    (state) => state.clearIsAuthenticated
-  );
+  const clearUser = useAuthStore((state) => state.clearUser);
+  const setIsAuthenticated = useAuthStore((state) => state.setIsAuthenticated);
+  const setIsLoading = useAuthStore((state) => state.setIsLoading);
 
   useEffect(() => {
     const fetchUser = async () => {
-      const isAuthenticated = await checkSession();
-      if (isAuthenticated) {
+      try {
         const user = await getMe();
-        if (user) setUser(user);
-      } else {
-        clearIsAuthenticated();
+        setUser(user);
+        setIsAuthenticated(true);
+      } catch (error: unknown) {
+        if (error instanceof AxiosError && error.response?.status === 401) {
+          await fetch("/auth/refresh");
+          try {
+            const user = await getMe();
+            setUser(user);
+            setIsAuthenticated(true);
+          } catch {
+            clearUser();
+            setIsAuthenticated(false);
+          }
+        } else {
+          clearUser();
+          setIsAuthenticated(false);
+        }
+      } finally {
+        setIsLoading(false);
       }
     };
-    fetchUser();
-  }, [setUser, clearIsAuthenticated]);
 
-  return children;
+    fetchUser();
+  }, [setUser, clearUser, setIsAuthenticated, setIsLoading]);
+
+  return <>{children}</>;
 };
 
 export default AuthProvider;

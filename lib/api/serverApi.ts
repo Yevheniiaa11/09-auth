@@ -1,30 +1,29 @@
-import { Note } from "../../types/note";
+import { Note, NoteListResponse } from "../../types/note";
 import { cookies } from "next/headers";
 import { nextApi } from "./api";
 import { User } from "../../types/user";
+import { ParamsTypes } from "./clientApi";
 
-export const fetchNotesServer = async (
+export async function fetchNotesServer(
+  query: string,
   page: number,
-  search = "",
-  tag?: string,
-  perPage = 12
-): Promise<{ notes: Note[]; totalPages: number }> => {
-  const params: Record<string, string | number> = { page, perPage };
-  if (search.trim()) params.search = search.trim();
-  if (tag && tag !== "all") params.tag = tag;
-
-  const headers = await getSSRHeaders();
-
-  const response = await nextApi.get<{ notes: Note[]; totalPages: number }>(
-    "/notes",
-    {
-      params,
-      ...headers,
-    }
-  );
+  tag: string | undefined = undefined
+): Promise<NoteListResponse> {
+  const params: ParamsTypes = {
+    ...(query.trim() !== "" && { search: query.trim() }),
+    page: page,
+    perPage: 12,
+    tag,
+  };
+  const cookieStore = await cookies();
+  const response = await nextApi.get<NoteListResponse>("/notes", {
+    params,
+    headers: {
+      Cookie: cookieStore.toString(),
+    },
+  });
   return response.data;
-};
-
+}
 export async function fetchNoteByIdServer(noteId: string): Promise<Note> {
   const cookieStore = await cookies();
   const response = await nextApi.get<Note>(`/notes/${noteId}`, {
@@ -44,17 +43,13 @@ export async function checkServerSession() {
   });
   return res;
 }
-const getSSRHeaders = async () => {
+
+export const getMeServer = async () => {
   const cookieStore = await cookies();
-  return {
+  const responce = await nextApi.get<User>("/users/me", {
     headers: {
       Cookie: cookieStore.toString(),
     },
-  };
-};
-
-export const getMeServer = async (): Promise<User> => {
-  const headers = await getSSRHeaders();
-  const response = await nextApi.get<User>("/users/me", headers);
-  return response.data;
+  });
+  return responce.data;
 };

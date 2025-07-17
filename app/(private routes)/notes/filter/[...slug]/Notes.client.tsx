@@ -6,31 +6,31 @@ import { useState } from "react";
 import { useDebounce } from "use-debounce";
 
 import Link from "next/link";
-import { NoteListResponse } from "../../../../../types/note";
+import { NoteListResponse, Tag } from "../../../../../types/note";
 import { fetchNotes } from "../../../../../lib/api/clientApi";
 import SearchBox from "../../../../../components/SearchBox/SearchBox";
 import Pagination from "../../../../../components/Pagination/Pagination";
 import { NoteList } from "../../../../../components/NoteList/NoteList";
 
 interface NotesClientProps {
-  initialData: NoteListResponse;
-  filterTag?: string;
+  initialNotesData: NoteListResponse;
+  tag?: Tag;
 }
 
 export default function NotesClient({
-  initialData,
-  filterTag,
+  initialNotesData,
+  tag,
 }: NotesClientProps) {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [debounceQuery] = useDebounce(search, 500);
 
   const allNotes = useQuery({
-    queryKey: ["allNotes", debounceQuery, page, filterTag],
-    queryFn: () => fetchNotes(page, debounceQuery, filterTag),
+    queryKey: ["allNotes", debounceQuery, page, tag],
+    queryFn: () => fetchNotes(page, debounceQuery, tag),
     placeholderData: keepPreviousData,
     refetchOnMount: false,
-    initialData: page === 1 && search === "" ? initialData : undefined,
+    initialData: page === 1 && search === "" ? initialNotesData : undefined,
   });
 
   function handleSearch(search: string) {

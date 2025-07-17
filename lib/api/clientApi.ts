@@ -3,10 +3,11 @@ import { Note, NoteListResponse } from "../../types/note";
 import { User } from "../../types/user";
 
 export interface ParamsTypes {
-  page: number;
-  perPage: number;
   search?: string;
+  page?: number;
+  perPage?: number;
   tag?: string;
+  sortBy?: string;
 }
 
 export type NewNoteData = {
