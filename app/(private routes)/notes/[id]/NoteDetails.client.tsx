@@ -2,29 +2,27 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
-import { fetchNoteById } from "../../../lib/api";
+
 import css from "./NoteDetails.module.css";
+import { fetchNoteById } from "../../../../lib/api/clientApi";
 
 export const NoteDetailsClient = () => {
   const { id } = useParams<{ id: string }>();
-  const noteId = Number(id);
+
   const router = useRouter();
-  console.log("Converted noteId:", noteId);
+  console.log("Converted noteId:", id);
 
   const {
     data: note,
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["note", noteId],
-    queryFn: () => fetchNoteById(noteId),
+    queryKey: ["note", id],
+    queryFn: () => fetchNoteById(id),
     refetchOnMount: false,
-    enabled: !isNaN(noteId),
+    enabled: !!id,
   });
 
-  if (isNaN(noteId)) {
-    return <p>Invalid note ID</p>;
-  }
   if (isLoading) return <p>Loading, please wait...</p>;
 
   if (error || !note) return <p>Something went wrong.</p>;

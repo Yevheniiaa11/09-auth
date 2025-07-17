@@ -3,15 +3,14 @@ import Link from "next/link";
 import css from "./AuthNavigation.module.css";
 import { useAuthStore } from "../../lib/store/authStore";
 import { useRouter } from "next/navigation";
-import { logout } from "../../lib/api/clientApi";
 import { useEffect } from "react";
 
 export const AuthNavigation = () => {
   const router = useRouter();
-  const { isAuthenticated, user } = useAuthStore();
-  const clearIsAuthenticated = useAuthStore(
-    (state) => state.clearIsAuthenticated
-  );
+  const clearUser = useAuthStore((state) => state.clearUser);
+  const setIsAuthenticated = useAuthStore((state) => state.setIsAuthenticated);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
     console.log("AuthNavigation: isAuthenticated =", isAuthenticated);
@@ -20,8 +19,8 @@ export const AuthNavigation = () => {
 
   const handleLogout = async () => {
     try {
-      await logout();
-      clearIsAuthenticated();
+      clearUser();
+      setIsAuthenticated(false);
       router.push("/sign-in");
     } catch (error) {
       console.error("Logout error:", error);

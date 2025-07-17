@@ -99,12 +99,12 @@ export const getCategories = async () => {
 };
 
 export type UpdateUserRequest = {
-  userName?: string;
+  username?: string;
   photoUrl?: string;
 };
 
 export const updateMe = async (payload: UpdateUserRequest) => {
-  const res = await nextApi.put<User>("/users/me", payload);
+  const res = await nextApi.patch<User>("/users/me", payload);
   return res.data;
 };
 

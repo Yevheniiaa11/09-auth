@@ -12,7 +12,7 @@ export default function SignUp() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
+    console.log("submitted");
     const formData = new FormData(event.currentTarget);
     try {
       const payload: RegisterRequest = {

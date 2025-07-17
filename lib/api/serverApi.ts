@@ -13,7 +13,7 @@ export async function fetchNotesServer(
     ...(query.trim() !== "" && { search: query.trim() }),
     page: page,
     perPage: 12,
-    tag,
+    ...(tag && tag.toLowerCase() !== "all" ? { tag } : {}),
   };
   const cookieStore = await cookies();
   const response = await nextApi.get<NoteListResponse>("/notes", {

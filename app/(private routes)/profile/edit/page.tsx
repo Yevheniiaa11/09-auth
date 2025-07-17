@@ -6,13 +6,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "../../../../lib/store/authStore";
 import { UpdateUserRequest, updateMe } from "../../../../lib/api/clientApi";
+import { useQueryClient } from "@tanstack/react-query";
 
 const EditProfile = () => {
   const [error, setError] = useState("");
   const user = useAuthStore((state) => state.user);
   const setUser = useAuthStore((state) => state.setUser);
   const router = useRouter();
-
+  const queryClient = useQueryClient();
   const handleSubmit = async (formData: FormData) => {
     const username = String(formData.get("username") || "").trim();
     if (!username) {
@@ -22,13 +23,14 @@ const EditProfile = () => {
 
     if (user) {
       const updatePayload: UpdateUserRequest = {
-        userName: username,
+        username: username,
       };
 
       try {
         const response = await updateMe(updatePayload);
         setUser(response);
         console.log("User edit:", response);
+        queryClient.invalidateQueries({ queryKey: ["me"] });
 
         router.push("/profile");
       } catch (err) {
@@ -44,7 +46,7 @@ const EditProfile = () => {
         <h1 className={css.formTitle}>Edit Profile</h1>
 
         <Image
-          src={user?.photoUrl || "/default-avatar.jpg"}
+          src={"https://ac.goit.global/fullstack/react/default-avatar.jpg"}
           alt="User Avatar"
           width={120}
           height={120}
@@ -66,6 +68,7 @@ const EditProfile = () => {
               id="username"
               type="text"
               defaultValue={user?.userName}
+              required
             />
           </div>
 
