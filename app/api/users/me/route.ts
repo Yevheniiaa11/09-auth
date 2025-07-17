@@ -6,14 +6,11 @@ import { api } from "../../api";
 export async function GET(request: Request) {
   try {
     const cookie = request.headers.get("cookie") || "";
-    const { data } = await api.get(
-      "https://notehub-api.goit.study/api/users/me",
-      {
-        headers: {
-          Cookie: cookie,
-        },
-      }
-    );
+    const { data } = await api.get("/users/me", {
+      headers: {
+        Cookie: cookie,
+      },
+    });
     if (data) return NextResponse.json(data);
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
