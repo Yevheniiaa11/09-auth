@@ -6,14 +6,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "../../../../lib/store/authStore";
 import { UpdateUserRequest, updateMe } from "../../../../lib/api/clientApi";
-import { useQueryClient } from "@tanstack/react-query";
 
 const EditProfile = () => {
   const [error, setError] = useState("");
   const user = useAuthStore((state) => state.user);
   const setUser = useAuthStore((state) => state.setUser);
   const router = useRouter();
-  const queryClient = useQueryClient();
+
   const handleSubmit = async (formData: FormData) => {
     const username = String(formData.get("username") || "").trim();
     if (!username) {
@@ -30,7 +29,6 @@ const EditProfile = () => {
         const response = await updateMe(updatePayload);
         setUser(response);
         console.log("User edit:", response);
-        queryClient.invalidateQueries({ queryKey: ["me"] });
 
         router.push("/profile");
       } catch (err) {
@@ -53,14 +51,7 @@ const EditProfile = () => {
           className={css.avatar}
         />
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            const formData = new FormData(e.currentTarget);
-            handleSubmit(formData);
-          }}
-          className={css.profileInfo}
-        >
+        <form action={handleSubmit} className={css.profileInfo}>
           <div className={css.usernameWrapper}>
             <label htmlFor="username">Username:</label>
             <input

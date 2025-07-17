@@ -11,7 +11,7 @@ interface AuthState {
   setIsLoading: (value: boolean) => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>()((set) => ({
   user: null,
   isAuthenticated: false,
   isLoading: true,

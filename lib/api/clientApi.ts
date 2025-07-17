@@ -24,7 +24,7 @@ export const fetchNotes = async (
   const { data } = await nextApi.get<NoteListResponse>("/notes", {
     params: {
       page,
-      perPage: 16,
+      perPage: 12,
       ...(searchText !== "" ? { search: searchText } : {}),
       ...(tag?.toLowerCase() !== "all" ? { tag } : {}),
     },
@@ -73,7 +73,7 @@ type CheckSessionResponse = {
 
 export const checkSession = async () => {
   const res = await nextApi.get<CheckSessionResponse>("/auth/session");
-  return res;
+  return res.data;
 };
 
 export const getMe = async () => {
@@ -85,30 +85,11 @@ export const logout = async (): Promise<void> => {
   await nextApi.post("/auth/logout");
 };
 
-export type CategoryType = {
-  id: string;
-  name: string;
-  description: string;
-  createdAt: string;
-  updatedAt: string;
-};
-
-export const getCategories = async () => {
-  const { data } = await nextApi<CategoryType[]>(`/categories`);
-  return data;
-};
-
 export type UpdateUserRequest = {
-  username?: string;
-  photoUrl?: string;
+  username: string;
 };
 
 export const updateMe = async (payload: UpdateUserRequest) => {
   const res = await nextApi.patch<User>("/users/me", payload);
   return res.data;
 };
-
-export interface AuthUserData {
-  username: string;
-  email: string;
-}
